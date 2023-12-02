@@ -8,7 +8,7 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 
 matplotlib.use("Agg")
 
-class StockTradingEnv(gym.Env):
+class StockEnvMine(gym.Env):
     def __init__(
             self,
             df,
@@ -70,13 +70,15 @@ class StockTradingEnv(gym.Env):
     def getDate(self):
         return self.data.date.unique()[0]
 
-    def reset(self, *, seed=None, option=None):
+    def reset(self, *, seed=None, options=None,):
         self.day = 0
         self.data = self.df.loc[self.day, :]
         self.state = self.initilize_state()
         self.asset_memory = [self.initial_amount + np.sum(np.array(self.num_stock_shares) * np.array(self.state[1:self.stock_dim+1]))]
         self.turbulence = 0
-        self.termianl = False
+        self.cost = 0
+        self.trades = 0
+        self.terminal = False
         self.reward_memory = []
         self.actions_memory = []
         self.date_memory = [self.getDate()]
@@ -114,7 +116,7 @@ class StockTradingEnv(gym.Env):
         if self.state[index + 2 * self.stock_dim + 1] != True:
             if self.state[index + self.stock_dim + 1] > 0:
                 nums_can_sell = self.state[index + self.stock_dim + 1]
-                nums = min(nums_can_sell, action)
+                nums = min(nums_can_sell, abs(action))
                 amount = self.state[index + 1] * (1 - self.sell_cost_pct[index]) * nums
                 self.state[0] += amount
                 self.state[index + self.stock_dim + 1] -= nums
@@ -152,7 +154,7 @@ class StockTradingEnv(gym.Env):
         plt.savefig(f"results/account_value_trade_{self.episode}.png")
         plt.close()
 
-    def getDummyEnv(self):
+    def get_sb_env(self):
         e = DummyVecEnv([lambda: self])
         obs = e.reset()
         return e, obs
@@ -229,4 +231,3 @@ class StockTradingEnv(gym.Env):
             self.reward = self.reward * self.reward_scaling
             self.state_memory.append(self.state)
             return self.state, self.reward, self.terminal, False, {}
-
