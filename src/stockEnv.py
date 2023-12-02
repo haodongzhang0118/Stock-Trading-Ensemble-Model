@@ -154,7 +154,7 @@ class StockEnvMine(gym.Env):
         plt.savefig(f"results/account_value_trade_{self.episode}.png")
         plt.close()
 
-    def get_sb_env(self):
+    def getDummyEnv(self):
         e = DummyVecEnv([lambda: self])
         obs = e.reset()
         return e, obs
