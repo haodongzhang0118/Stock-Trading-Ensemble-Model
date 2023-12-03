@@ -5,10 +5,13 @@ from finrl.agents.stablebaselines3.models import TensorboardCallback
 from stable_baselines3 import A2C
 from stable_baselines3 import DDPG
 from stable_baselines3 import PPO
+from stable_baselines3 import SAC
+from stable_baselines3 import TD3
+
 
 class Agent:
     def __init__(self, env, model_name, policy="MlpPolicy", policy_kwargs=None, model_kwargs=None, verbose=1, seed=None, tensorboard_log=None):
-        self.models = {"a2c": A2C, "ddpg": DDPG, "ppo": PPO}
+        self.models = {"a2c": A2C, "ddpg": DDPG, "ppo": PPO, "td3": TD3, "sac": SAC}
         model_kwargs_dict = {x: config.__dict__[f"{x.upper()}_PARAMS"] for x in self.models.keys()}
         self.model_name = model_name
         if model_kwargs is None:
@@ -39,14 +42,14 @@ class Agent:
                 print("Finished")
                 break
         return account_memory[0], actions_memory[0]
-    
+
     def predictLoadFromFile(self, env_new, cwd, deterministic=True):
         try:
             model = self.model.load(cwd)
             print("Model loaded from file")
         except BaseException as error:
             raise ValueError(f"Failed to load agent. Error: {str(error)}") from error
-        
+
         state = env_new.reset()
         episode_returns = []
         episode_total_assets = [env_new.initial_amount]

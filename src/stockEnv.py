@@ -66,7 +66,7 @@ class StockEnvMine(gym.Env):
     def initilize_state(self):
         state = ([self.initial_amount] + self.data.close.values.tolist() + self.num_stock_shares + sum((self.data[tech].values.tolist() for tech in self.tech_indicator_list), []))
         return state
-    
+
     def getDate(self):
         return self.data.date.unique()[0]
 
@@ -84,11 +84,11 @@ class StockEnvMine(gym.Env):
         self.date_memory = [self.getDate()]
         self.episode += 1
         return self.state, {}
-    
+
     def update(self):
         state = ([self.state[0]] + self.data.close.values.tolist() + list(self.state[(self.stock_dim + 1) : (2 * self.stock_dim + 1)]) + sum((self.data[tech].values.tolist() for tech in self.tech_indicator_list), []))
         return state
-    
+
     def buy(self, index, action):
         if self.state[index + 2 * self.stock_dim + 1] != True:
             nums_can_buy = self.state[0] // (self.state[index + 1] * (1 + self.buy_cost_pct[index]))
@@ -101,7 +101,7 @@ class StockEnvMine(gym.Env):
         else:
             nums = 0
         return nums
-    
+
     def Action_Buy(self, index, action):
         if self.turbulence_th is None:
             nums = self.buy(index, action)
@@ -111,7 +111,7 @@ class StockEnvMine(gym.Env):
             else:
                 nums = 0
         return nums
-    
+
     def sell(self, index, action):
         if self.state[index + 2 * self.stock_dim + 1] != True:
             if self.state[index + self.stock_dim + 1] > 0:
@@ -127,7 +127,7 @@ class StockEnvMine(gym.Env):
         else:
             nums = 0
         return nums
-    
+
     def Action_Sell(self, index, action):
         if self.turbulence_th is None:
             nums = self.sell(index, action)
@@ -148,7 +148,7 @@ class StockEnvMine(gym.Env):
                 else:
                     nums = 0
         return nums
-    
+
     def makePlot(self):
         plt.plot(self.asset_memory, "r")
         plt.savefig(f"results/account_value_trade_{self.episode}.png")
@@ -158,13 +158,13 @@ class StockEnvMine(gym.Env):
         e = DummyVecEnv([lambda: self])
         obs = e.reset()
         return e, obs
-    
+
     def saveAssetMemory(self):
         date_list = self.date_memory
         asset_list = self.asset_memory
         df_account_value = pd.DataFrame({"date": date_list, "account_value": asset_list})
         return df_account_value
-    
+
     def saveActionMemory(self):
         date_list = self.date_memory[:-1]
         df_date = pd.DataFrame(date_list)
