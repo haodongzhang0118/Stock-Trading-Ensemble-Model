@@ -50,6 +50,7 @@ class EnsembleAgent:
             return df_total_value["daily_return"].mean() / df_total_value["daily_return"].std() * np.sqrt(4)
 
     def train(self, A2C_kwargs=None, PPO_kwargs=None, DDPG_kwargs=None, timesteps={"a2c": 50000, "ppo": 50000, "ddpg": 50000}):
+        tell = True
         a2c_sharpe = []
         ddpg_sharpe = []
         ppo_sharpe = []
@@ -62,9 +63,17 @@ class EnsembleAgent:
 
         insample_turbulence = self.df[(self.df.date >= self.train_period[0]) & (self.df.date < self.train_period[1])]
         insample_tur_threshold = np.quantile(insample_turbulence.turbulence.values, .90)
-        for i in range(self.rebalance_window + self.validation_window, len(self.unique_trade_date), self.rebalance_window):
+        for i in range(self.rebalance_window + self.validation_window, len(self.unique_trade_date) + self.rebalance_window + self.validation_window, self.rebalance_window):
             val_start = self.unique_trade_date[i - self.rebalance_window - self.validation_window]
-            val_end = self.unique_trade_date[i - self.rebalance_window]
+            if i > len(self.unique_trade_date):
+              tell = False
+            if i - self.rebalance_window > len(self.unique_trade_date):
+              end_index = -1
+            else:
+              end_index = i - self.rebalance_window
+            val_end = self.unique_trade_date[end_index]
+            # val_start = self.unique_trade_date[i]
+            # val_end = self.unique_trade_date[i + self.rebalance_window]
             val_start_date.append(val_start)
             val_end_date.append(val_end)
             iteration_list.append(i)
@@ -76,10 +85,10 @@ class EnsembleAgent:
                 tur_threshold = insample_tur_threshold
             else:
                 tur_threshold = np.quantile(insample_turbulence.turbulence.values, 0.99)
-            print("Turbulence threshold: ", tur_threshold)     
+            print("Turbulence threshold: ", tur_threshold)
 
             train = data_split(self.df, start=self.train_period[0], end=self.unique_trade_date[i - self.rebalance_window - self.validation_window],)
-            validation = data_split(self.df, start=self.unique_trade_date[i - self.rebalance_window - self.validation_window], end=self.unique_trade_date[i - self.rebalance_window],)
+            validation = data_split(self.df, start=self.unique_trade_date[i - self.rebalance_window - self.validation_window], end=self.unique_trade_date[end_index],)
             self.train_env = DummyVecEnv([lambda: StockEnvMine(df=train, **self.env_args)])
             print("Model training from: {} to {}".format(self.train_period[0], self.unique_trade_date[i - self.rebalance_window - self.validation_window]))
             print("A2C Training: ")
@@ -125,22 +134,9 @@ class EnsembleAgent:
             else:
                 model_order.append("ddpg")
                 model_ensemble = agent_ddpg.model
-            
-            last_state = self.predict(model=model_ensemble, name="ensemble", last_state=last_state, iter=i, tur_th=tur_threshold, initial=initial)
 
-        df_summary = pd.DataFrame({"iteration": iteration_list, "val_start_date": val_start_date, "val_end_date": val_end_date, "model_order": model_order, "a2c_sharpe": a2c_sharpe, "ddpg_sharpe": ddpg_sharpe, "ppo_sharpe": ppo_sharpe})
+            if tell:
+                last_state = self.predict(model=model_ensemble, name="ensemble", last_state=last_state, iter=i, tur_th=tur_threshold, initial=initial)
+
+        df_summary = pd.DataFrame({"iteration": iteration_list, "Start Date": val_start_date, "End Date": val_end_date, "model_order": model_order, "a2c_sharpe": a2c_sharpe, "ddpg_sharpe": ddpg_sharpe, "ppo_sharpe": ppo_sharpe})
         return df_summary
-
-
-
-
-
-
-
-
-
-
-        
-
-
-
