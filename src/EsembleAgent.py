@@ -57,6 +57,7 @@ class EnsembleAgent:
         last_state = []
 
         model_order = []
+        agents = []
         val_start_date = []
         val_end_date = []
         iteration_list = []
@@ -72,8 +73,6 @@ class EnsembleAgent:
             else:
               end_index = i - self.rebalance_window
             val_end = self.unique_trade_date[end_index]
-            # val_start = self.unique_trade_date[i]
-            # val_end = self.unique_trade_date[i + self.rebalance_window]
             val_start_date.append(val_start)
             val_end_date.append(val_end)
             iteration_list.append(i)
@@ -127,16 +126,19 @@ class EnsembleAgent:
             print("Ensemble Model Training: ")
             if (sharpe_a2c > sharpe_ppo) & (sharpe_a2c > sharpe_ddpg):
                 model_order.append("a2c")
+                agents.append(agent_a2c)
                 model_ensemble = agent_a2c.model
             elif (sharpe_ppo >= sharpe_a2c) & (sharpe_ppo >= sharpe_ddpg):
                 model_order.append("ppo")
+                agents.append(agent_ppo)
                 model_ensemble = agent_ppo.model
             else:
                 model_order.append("ddpg")
+                agents.append(agent_ddpg)
                 model_ensemble = agent_ddpg.model
 
             if tell:
                 last_state = self.predict(model=model_ensemble, name="ensemble", last_state=last_state, iter=i, tur_th=tur_threshold, initial=initial)
 
         df_summary = pd.DataFrame({"iteration": iteration_list, "Start Date": val_start_date, "End Date": val_end_date, "model_order": model_order, "a2c_sharpe": a2c_sharpe, "ddpg_sharpe": ddpg_sharpe, "ppo_sharpe": ppo_sharpe})
-        return df_summary
+        return df_summary, agents, val_start_date, val_end_date
