@@ -9,6 +9,9 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 matplotlib.use("Agg")
 
 class StockEnvMine(gym.Env):
+
+    metadata = {"render.modes": ["human"]}
+
     def __init__(
             self,
             df,
@@ -22,9 +25,14 @@ class StockEnvMine(gym.Env):
             tech_indicator_list,
             reward_scaling,
             action_space,
+            initial=True,
+            last_state=[],
             turbulence_th=None,
             plots=False,
-            risk_indicator = 'turbulence'
+            risk_indicator = 'turbulence',
+            mode="",
+            model_name="",
+            iteration="",
     ):
         self.df = df
         self.day = 0
@@ -42,10 +50,14 @@ class StockEnvMine(gym.Env):
         self.reward_scaling = reward_scaling
         self.turbulence_th = turbulence_th
         self.plots = plots
+        self.initial = initial
         self.terminal = False
         self.risk_indicator = risk_indicator
         self.state = self.initilize_state()
         self.log_every = 1
+        self.mode = mode
+        self.model_name = model_name
+        self.iteration = iteration
 
         self.reward = 0
         self.turbulence= 0
@@ -64,11 +76,17 @@ class StockEnvMine(gym.Env):
         return [seed]
 
     def initilize_state(self):
-        state = ([self.initial_amount] + self.data.close.values.tolist() + self.num_stock_shares + sum((self.data[tech].values.tolist() for tech in self.tech_indicator_list), []))
+        if self.initial:
+            state = ([self.initial_amount] + self.data.close.values.tolist() + self.num_stock_shares + sum((self.data[tech].values.tolist() for tech in self.tech_indicator_list), []))
+        else:
+            state = ([self.last_state[0]] + self.data.close.values.tolist() + self.last_state[(self.stock_dim + 1) : (self.stock_dim * 2 + 1)] + sum((self.data[tech].values.tolist() for tech in self.tech_indicator_list),[]))
         return state
 
     def getDate(self):
         return self.data.date.unique()[0]
+    
+    def render(self, mode="human", close=False):
+        return self.state
 
     def reset(self, *, seed=None, options=None,):
         self.day = 0
@@ -201,6 +219,13 @@ class StockEnvMine(gym.Env):
                 if df_total_value["daily_return"].std() != 0:
                     print(f"Sharpe: {sharpe:0.3f}")
                 print("=================================")
+
+            if (self.model_name != "") and (self.mode != ""):
+                df_total_value.to_csv("results/account_value_{}_{}_{}.csv".format(self.mode, self.model_name, self.iteration),index=False,)
+                df_rewards.to_csv("results/account_rewards_{}_{}_{}.csv".format(self.mode, self.model_name, self.iteration), index=False,)
+                plt.plot(self.asset_memory, "r")
+                plt.savefig("results/account_value_{}_{}_{}.png".format(self.mode, self.model_name, self.iteration))
+                plt.close()
             return self.state, self.reward, self.terminal, False, {}
         else:
             actions = (actions * self.hmax).astype(int)
