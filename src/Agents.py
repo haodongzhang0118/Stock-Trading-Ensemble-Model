@@ -5,8 +5,6 @@ from finrl.agents.stablebaselines3.models import TensorboardCallback
 from stable_baselines3 import A2C
 from stable_baselines3 import DDPG
 from stable_baselines3 import PPO
-from stable_baselines3 import SAC
-from stable_baselines3 import TD3
 
 
 class Agent:
@@ -47,22 +45,4 @@ class Agent:
                 break
         return account_memory[0], actions_memory[0]
 
-    def predictLoadFromFile(self, env_new, cwd, deterministic=True):
-        try:
-            model = self.model.load(cwd)
-            print("Model loaded from file")
-        except BaseException as error:
-            raise ValueError(f"Failed to load agent. Error: {str(error)}") from error
-
-        state = env_new.reset()
-        episode_returns = []
-        episode_total_assets = [env_new.initial_amount]
-        done = False
-        while not done:
-            action = model.predict(state, deterministic=deterministic)[0]
-            state, reward, done, _ = env_new.step(action)
-            episode_total_assets.append(state[0])
-            episode_return = state[0] / env_new.initial_amount
-            episode_returns.append(episode_return)
-        print(f"Finish Trading. The final amount of money is: {episode_total_assets[-1]}. The total return is: {episode_returns[-1]}")
-        return episode_total_assets, episode_returns
+    

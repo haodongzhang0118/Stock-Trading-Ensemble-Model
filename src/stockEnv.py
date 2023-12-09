@@ -53,6 +53,7 @@ class StockEnvMine(gym.Env):
         self.initial = initial
         self.terminal = False
         self.risk_indicator = risk_indicator
+        self.last_state = last_state
         self.state = self.initilize_state()
         self.log_every = 1
         self.mode = mode
@@ -84,7 +85,7 @@ class StockEnvMine(gym.Env):
 
     def getDate(self):
         return self.data.date.unique()[0]
-    
+
     def render(self, mode="human", close=False):
         return self.state
 
@@ -256,3 +257,4 @@ class StockEnvMine(gym.Env):
             self.reward = self.reward * self.reward_scaling
             self.state_memory.append(self.state)
             return self.state, self.reward, self.terminal, False, {}
+        
