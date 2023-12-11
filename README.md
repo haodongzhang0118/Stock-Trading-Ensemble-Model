@@ -8,7 +8,7 @@ From the result, our ensemble can get 16% return while the benchmark (market) ca
 # Demo
 The project.ipynb is the simple demo that using our ensemble stragety with several RL trained models to trade from 2022-04-01 to 2023-09-01.
 
-We recommend download the github repo, and run our ipynb file in the colab. (Since the local kernal will die if when we try to run the plot session)
+We recommend download the github repo, and run our ipynb file in the colab. (Since the local kernal will die when we try to run the plot session)
 
 Here is the result of our demo:
 The **Yellow** one is our balance after trading, and the **Blue** one is the benchmark's
