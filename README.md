@@ -18,5 +18,18 @@ All files have been written well. Begin the project by just following the instru
 
 1) Download the dataset from Yahoo Finance with chosen Start Date (2012-01-01) to the End Date (2023-09-01)
 2) Pre-Process the data with indicators that we need for training and trading.
-Above two step has been finished by DataRetrieve.py. Using RetrieveTrainingData function to do all of these.
-Attention: Since Yahoo API has access limitations, it is also a good choice to use the Pre_ProcessedFile.csv in our repo to get the data
+3) Above two step has been finished by DataRetrieve.py. Using RetrieveTrainingData function to do all of these.
+4) Attention: Since Yahoo API has access limitations, it is also a good choice to use the Pre_ProcessedFile.csv in our repo to get the finished processing data.
+
+# Training
+
+1) EnsembleAgent.py has the complete training logic. It should be fed with environment arguments, agent arguments, pd.DataFrame type data (reading from Pre_ProcessedFile.csv).
+2) All of arguments can be found in the requirement.txt in our repo
+3) During the training, it will generate some useful csv files that can help to evaluate the trained model.
+4) After finishing training, using class function **predict**, we can simulate the trading from 2022-01-01 to 2023-09-01 (can be changed by user)
+
+# Evaluation
+1) Evaluation.py can be used to generate some encomical indicators to evaluate the quality of ensemble strategy (Sharp Ratio, Yield, Beta, Cumulative Return)
+
+# Conclusion
+This project is a well defined project which can be used by someone who just know little about computer science
