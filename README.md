@@ -11,6 +11,7 @@ The project.ipynb is the simple demo that using our ensemble stragety with sever
 We recommend download the github repo, and run our ipynb file in the colab. (Since the local kernal will die if when we try to run the plot session)
 
 Here is the result of our demo:
+![ezgif com-gif-maker](https://github.com/haodongzhang0118/Stock-Trading-Ensemble-Model/assets/128533950/2157f705-e14c-40aa-8f2e-f3f5f96ac249)
 
 # Set up the project
 
