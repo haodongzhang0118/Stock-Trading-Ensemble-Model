@@ -143,7 +143,7 @@ class EnsembleAgent:
 
 
 
-    def train(self, A2C_kwargs=None, PPO_kwargs=None, DDPG_kwargs=None, timesteps={"a2c": 500, "ppo": 500, "ddpg": 500}):
+    def train(self, A2C_kwargs=None, PPO_kwargs=None, DDPG_kwargs=None, timesteps={"a2c": 50000, "ppo": 50000, "ddpg": 50000}):
         tell = True
         a2c_sharpe = []
         ddpg_sharpe = []
