@@ -11,7 +11,7 @@ The project.ipynb is the simple demo that using our ensemble stragety with sever
 We recommend download the github repo, and run our ipynb file in the colab. (Since the local kernal will die if when we try to run the plot session)
 
 Here is the result of our demo:
-The **Yellow** one is our balance, and the **Blue** one is the benchmark
+The **Yellow** one is our balance after trading, and the **Blue** one is the benchmark's
 ![ezgif com-gif-maker](https://github.com/haodongzhang0118/Stock-Trading-Ensemble-Model/assets/128533950/e4f9e8f2-ef37-4d2d-8742-ea8b455c490c)
 
 
